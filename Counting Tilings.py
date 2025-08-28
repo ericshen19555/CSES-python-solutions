@@ -1,33 +1,34 @@
 def main():
     from sys import stdin
-    mod = 10**9 + 7
+    mod = 10 ** 9 + 7
     e = stdin.readline
 
     n, m = map(int, e().split())
-    k = n + 1
-    bit = 1 << k
+    bit = 1 << n
+    mask = bit - 1
+
+    tiles = [0b11 << i for i in range(n - 1)]
+    tiles_comb = [0b0]
+    for tile in tiles:
+        for tile_comb in tiles_comb:
+            if not tile_comb & tile:
+                tiles_comb.append(tile_comb | tile)
+    # print(len(tiles_comb))  # <= 89
+
+    trans = [[mask ^ (b | tile_comb)
+              for tile_comb in tiles_comb
+              if not b & tile_comb] for b in range(bit)]
+    # print(sum(map(len, trans)))  # <= 5741
+
     d = [0] * bit
     d[0] = 1
-    for r in range(m):
-        if r:
-            p = [0] * bit
-            for b in range(bit >> 1):
-                p[b << 1] = d[b]
-            d = p
-        for i in range(n):
-            p = [0] * bit
-            for b in range(bit):
-                # 00     -> 10 01
-                # 01, 10 -> 00
-                # 11     -> X
-                sb = (b >> i) & 3
-                if sb == 3: continue
-                v = d[b] % mod
-                if sb == 0:
-                    p[b ^ (1 << i)] += v
-                    p[b ^ (1 << i + 1)] += v
-                else:  # 1 2
-                    p[b ^ (sb << i)] += v
-            d = p
+    for _ in range(m):
+        p = [0] * bit
+        for b, v in enumerate(d):
+            if not v: continue
+            v %= mod
+            for nb in trans[b]:
+                p[nb] += v
+        d = p
     print(d[0] % mod)
 main()
