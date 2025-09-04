@@ -3,76 +3,71 @@ def main():
     e = stdin.readline
 
     n, q = map(int, e().split())
-    l = [int(v) - 1 for v in e().split()]
+    nxt = [int(v) - 1 for v in e().split()]
 
-    tag = [0] * n
-    counter = 0
-    G = [[] for _ in range(n)]
-    cycles = []
-    in_cycle = [False] * n
-    for s, v in enumerate(tag):
-        if v: continue
-        counter += 1
-        i = s
-        while not tag[i]:
-            tag[i] = counter
-            i = l[i]
-        c = i
-        if tag[c] == counter:
-            size = 1
-            pi, i = c, l[c]
-            while i != c:
-                size += 1
-                G[i].append(pi)
-                in_cycle[i] = True
-                pi, i = i, l[i]
-            G[i].append(pi)
-            in_cycle[i] = True
-            cycles.append((c, size))
-        pi, i = s, l[s]
-        while i != c:
-            G[i].append(pi)
-            pi, i = i, l[i]
-        G[i].append(pi)
-
-    qs = [[] for _ in range(n)]
-    for qi in range(q):
-        a, b = map(int, e().split())
-        a, b = a-1, b-1
-        qs[a].append((b, qi))
-
+    group_of = [-1] * n
+    entry = list(range(n))
+    entry_dis = [0] * n
+    cycle_pos = [-1] * n
+    cycle_len = []
+    group_counter = 0
     for i in range(n):
-        G[i] = iter(G[i])
-        qs[i] = iter(qs[i])
+        if group_of[i] != -1: continue
+        group_of[i] = group_counter
+        path = [i]
+        head, i = i, nxt[i]
+        while group_of[i] == -1:
+            path.append(i)
+            group_of[i] = group_counter
+            i = nxt[i]
+        size = len(path)
 
-    dep = [-1] * n
-    ans = [-1] * q
-    for c, size in cycles:
-        stk = [c]
-        dep[c] = 0
-        while stk:
-            i = stk[-1]
-            if in_cycle[i]:
-                top = i
-            for j in G[i]:
-                dep[j] = len(stk)
-                stk.append(j)
-                break
+        tail = i
+        if group_of[tail] == group_counter:
+            k = path.index(tail)
+            for i in range(k):
+                entry[path[i]] = tail
+                entry_dis[path[i]] = k - i
+            for i in range(k, size):
+                cycle_pos[path[i]] = i - k
+            cycle_len.append(size - k)
+            group_counter += 1
+        else:
+            for i in range(size):
+                group_of[path[i]] = group_of[tail]
+                entry_dis[path[i]] = entry_dis[tail] + size - i
+                entry[path[i]] = entry[tail]
+
+    jump = nxt
+    binary_lifting = [jump]
+    for _ in range(18):
+        jump = [jump[jump[i]] for i in range(n)]
+        binary_lifting.append(jump)
+
+    ans = []
+    for _ in range(q):
+        i, j = map(int, e().split())
+        i, j = i-1, j-1
+        if i == j:
+            ans.append(0)
+        elif group_of[i] != group_of[j] or entry_dis[i] < entry_dis[j]:
+            ans.append(-1)
+        elif entry_dis[j] == 0:
+            ans.append(entry_dis[i] + (cycle_pos[j] - cycle_pos[entry[i]]) % cycle_len[group_of[j]])
+        elif entry_dis[i] == entry_dis[j]:
+            ans.append(-1)
+        else:
+            dis = entry_dis[i] - entry_dis[j]
+            ii, k = i, 0
+            while dis:
+                if dis & 1:
+                    ii = binary_lifting[k][ii]
+                dis >>= 1
+                k += 1
+            if ii == j:
+                ans.append(entry_dis[i] - entry_dis[j])
             else:
-                for j, qi in qs[i]:
-                    if dep[j] == -1: continue
-                    if in_cycle[j]:
-                        ans[qi] = dep[i] - dep[top] + (dep[top] - dep[j]) % size
-                    else:
-                        ans[qi] = dep[i] - dep[j]
-                stk.pop()
-                if not in_cycle[i]:
-                    dep[i] = -1
-        dep[c] = -1
-        i = l[c]
-        while i != c:
-            dep[i] = -1
-            i = l[i]
+                ans.append(-1)
 
     print("\n".join(map(str, ans)))
 main()
