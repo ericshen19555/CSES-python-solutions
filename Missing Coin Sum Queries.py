@@ -1,3 +1,7 @@
+# O((n + q) log n log C)
+# TODO: O(n log n + q log C)
+# https://cses.fi/problemset/hack/2184/entry/13577433/
+
 def main():
     from sys import stdin
     e = stdin.readline
