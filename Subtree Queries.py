@@ -10,31 +10,28 @@ def main():
         a, b = a-1, b-1
         G[a].append(b)
         G[b].append(a)
-    for i, it in enumerate(G):
-        G[i] = iter(it)
 
     stk = [0]
     bit = [0] * (n + 1)
     tin = [0] * n
     tout = [0] * n
     pa = [-1] * n
-    tin[0] = 0
-    bit[1] = l[0]
-    t = 1
+    t = 0
     while stk:
-        i = stk[-1]
-        for j in G[i]:
-            if j == pa[i]: continue
-            tin[j] = t
+        i = stk.pop()
+        if i >= 0:
+            p = pa[i]
+            tin[i] = t
             t += 1
-            bit[t] = l[j]
-            pa[j] = i
-            stk.append(j)
-            break
+            bit[t] = l[i]
+            stk.append(~i)
+            for j in G[i]:
+                if j == p: continue
+                pa[j] = i
+                stk.append(j)
         else:
-            stk.pop()
+            i = ~i
             tout[i] = t
-
     for i in range(1, n):
         ii = i + (i & -i)
         if ii <= n:

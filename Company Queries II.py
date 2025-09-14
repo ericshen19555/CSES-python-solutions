@@ -7,8 +7,6 @@ def main():
     for i, p in enumerate(map(int, e().split()), 1):
         p -= 1
         G[p].append(i)
-    for i, it in enumerate(G):
-        G[i] = iter(it)
 
     qs = [[] for _ in range(n)]
     ans = [0] * q
@@ -29,23 +27,25 @@ def main():
         return dsu[x]
 
     dsu = [-1] * n
+    pa = [-1] * n
     top = [-1] * n
-    top[0] = 0
     stk = [0]
     while stk:
-        i = stk[-1]
-        for j in G[i]:
-            top[j] = j
-            for ai in qs[j]:
-                jj = ans[ai] ^ j
-                if top[jj] == -1: continue
-                ans[ai] = top[find(jj)] + 1
-            stk.append(j)
-            break
+        i = stk.pop()
+        if i >= 0:
+            top[i] = i
+            for ai in qs[i]:
+                j = ans[ai] ^ i
+                if top[j] == -1: continue
+                ans[ai] = top[find(j)] + 1
+            stk.append(~i)
+            for j in G[i]:
+                pa[j] = i
+                stk.append(j)
         else:
-            stk.pop()
+            i = ~i
             if not i: continue
-            ri, rp = find(i), find(stk[-1])
+            ri, rp = find(i), find(pa[i])
             top[ri] = top[rp]
             if dsu[rp] == dsu[ri]: dsu[rp] -= 1
             elif dsu[rp] > dsu[ri]: rp, ri = ri, rp

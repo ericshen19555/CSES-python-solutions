@@ -9,8 +9,6 @@ def main():
         a, b = a-1, b-1
         G[a].append(b)
         G[b].append(a)
-    for i, it in enumerate(G):
-        G[i] = iter(it)
 
     ans = [0] * n
     qs = [[] for _ in range(n)]
@@ -34,23 +32,24 @@ def main():
     dsu = [-1] * n
     top = [-1] * n
     pa = [-1] * n
-    top[0] = 0
     stk = [0]
     while stk:
-        i = stk[-1]
-        for j in G[i]:
-            if j == pa[i]: continue
-            pa[j] = i
-            top[j] = j
-            for jj in qs[j]:
-                if top[jj] == -1: continue
-                a = top[find(jj)]
+        i = stk.pop()
+        if i >= 0:
+            p = pa[i]
+            top[i] = i
+            for j in qs[i]:
+                if top[j] == -1: continue
+                a = top[find(j)]
                 ans[a] -= 1
                 if a: ans[pa[a]] -= 1
-            stk.append(j)
-            break
+            stk.append(~i)
+            for j in G[i]:
+                if j == p: continue
+                pa[j] = i
+                stk.append(j)
         else:
-            stk.pop()
+            i = ~i
             if not i: continue
             p = pa[i]
             ans[p] += ans[i]

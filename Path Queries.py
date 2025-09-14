@@ -11,43 +11,28 @@ def main():
         G[a].append(b)
         G[b].append(a)
 
-    bfs = [0]
-    pa = [-1] * n
-    dep = [0] * n
-    for i in bfs:
-        p = pa[i]
-        d = dep[i]
-        for j in G[i]:
-            if j == p: continue
-            pa[j] = i
-            dep[j] = d + 1
-            bfs.append(j)
-    siz = [1] * n
-    ch = [-1] * n
-    for i in reversed(bfs):
-        if not i: continue
-        p = pa[i]
-        s = siz[i]
-        siz[p] += s
-        if ch[p] == -1 or s > siz[ch[p]]:
-            ch[p] = i
-    top = list(range(n))
     stk = [0]
-    dfn = [0] * n
     bit = [0] * (n + 1)
-    t = 1
+    tin = [0] * n
+    tout = [0] * n
+    pa = [-1] * n
+    t = 0
     while stk:
         i = stk.pop()
-        dfn[i] = t
-        bit[t] = l[i]
-        t += 1
-        p, c = pa[i], ch[i]
-        if c == -1: continue
-        top[c] = top[i]
-        for j in G[i]:
-            if j == p or j == c: continue
-            stk.append(j)
-        stk.append(c)
+        if i >= 0:
+            p = pa[i]
+            tin[i] = t
+            t += 1
+            bit[t] += l[i]
+            stk.append(~i)
+            for j in G[i]:
+                if j == p: continue
+                pa[j] = i
+                stk.append(j)
+        else:
+            i = ~i
+            if t < n: bit[t + 1] -= l[i]
+            tout[i] = t
     for i in range(1, n):
         ii = i + (i & -i)
         if ii <= n:
@@ -55,28 +40,27 @@ def main():
 
     ans = []
     for _ in range(q):
-        o, i, *v = map(int, e().split())
-        i -= 1
+        o, *oo = map(int, e().split())
         if o == 1:
-            v = v[0]
+            i, v = oo
+            i -= 1
             d = v - l[i]
             l[i] = v
-            i = dfn[i]
-            while i <= n:
-                bit[i] += d
-                i += i & -i
+            x = tin[i] + 1
+            while x <= n:
+                bit[x] += d
+                x += x & -x
+            x = tout[i] + 1
+            while x <= n:
+                bit[x] -= d
+                x += x & -x
         else:
+            i = oo[0] - 1
             res = 0
-            while ~i:
-                tt = top[i]
-                s, t = dfn[tt] - 1, dfn[i]
-                while t > s:
-                    res += bit[t]
-                    t &= t-1
-                while s > t:
-                    res -= bit[s]
-                    s &= s-1
-                i = pa[tt]
+            x = tin[i] + 1
+            while x:
+                res += bit[x]
+                x &= x - 1
             ans.append(res)
     print("\n".join(map(str, ans)))
 main()
