@@ -24,7 +24,6 @@ def main():
 
     ans = []
     stk = [0]
-    vis = [False] * n
     while stk:
         i = stk[-1]
         for ei in G[i]:
@@ -36,7 +35,6 @@ def main():
         else:
             stk.pop()
             ans.append(i + 1)
-            vis[i] = True
 
     if any(es):
         print("IMPOSSIBLE")
