@@ -32,7 +32,7 @@ def main():
                     break
             else:
                 mid = s + t >> 1
-                if qs <= mid:
+                if qs < mid:
                     stk.append((o << 1 | 0, s, mid))
                 if qt > mid:
                     stk.append((o << 1 | 1, mid, t))
