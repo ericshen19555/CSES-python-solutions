@@ -9,18 +9,19 @@ def main():
 
     def add(v):
         o, s, t = 1, 0, r
-        while s + 1 < t:
-            if v[0] > tr[o][0]: tr[o], v = v, tr[o]
+        while True:
             mid = s + t >> 1
-            if y(mid, tr[o]) >= y(mid, v):
-                o = o << 1
-                t = mid
-            else:
+            if y(mid, v) > y(mid, tr[o]):
                 tr[o], v = v, tr[o]
+            if y(s, v) > y(s, tr[o]):
+                o = o << 1 | 0
+                t = mid
+                continue
+            if y(t - 1, v) > y(t - 1, tr[o]):
                 o = o << 1 | 1
                 s = mid
-        if y(s, v) > y(s, tr[o]):
-            tr[o] = v
+                continue
+            break
 
     def query(x):
         res = -inf
