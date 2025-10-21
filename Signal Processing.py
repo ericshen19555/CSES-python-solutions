@@ -64,28 +64,27 @@ def main():
         mm = m1 * m2
         q1 = m1 * pow(m1, -1, m2)
         q2 = m2 * pow(m2, -1, m1)
-        for i in range(2 * k + 1):
+        for i in range(k):
             r1 = (a1[i] * inv_n1) % m1
             r2 = (a2[i] * inv_n2) % m2
             a1[i] = (r1 * q2 + r2 * q1) % mm
 
-    k, n, m = map(int, e().split())
-    lim = 1 << k.bit_length() + 1  # min 2^x > 2k
+    n, m = map(int, e().split())
+    k = n + m - 1
+    a1 = list(map(int, e().split()))
+    b1 = list(map(int, e().split()))[::-1]
+    lim = 1 << (n + m).bit_length()
+    a1 += [0] * (lim - n)
+    b1 += [0] * (lim - m)
     rev_bit = [0] * lim
     for i in range(1, lim):
         rev_bit[i] = rev_bit[i >> 1] >> 1 | (i & 1) * (lim >> 1)
 
-    a1 = [0] * lim
-    b1 = [0] * lim
-    for v in map(int, e().split()):
-        a1[v] += 1
-    for v in map(int, e().split()):
-        b1[v] += 1
     a2 = b2 = []
     ntt()
     for i in range(lim):
         a1[i] = (a1[i] * b1[i]) % m1
         a2[i] = (a2[i] * b2[i]) % m2
     ntt_inv()
-    print(*a1[2:2*k+1])
+    print(*a1[:k])
 main()
