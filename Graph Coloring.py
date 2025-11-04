@@ -1,3 +1,5 @@
+# TODO: O(n2^n) https://cses.fi/problemset/hack/3308/entry/13814460/
+
 def main():
     from sys import stdin
     e = stdin.readline
