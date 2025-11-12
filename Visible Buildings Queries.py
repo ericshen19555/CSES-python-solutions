@@ -1,42 +1,27 @@
 def main():
     from sys import stdin
+    from bisect import bisect_right
     e = stdin.readline
 
     n, q = map(int, e().split())
-    l = list(map(int, e().split()))
+    l = list(map(int, e().split())) + [float("INF")]
 
+    ans = [0] * q
     qs = [[] for _ in range(n)]
     for qi in range(q):
         s, t = map(int, e().split())
-        qs[s - 1].append((t, qi))
+        ans[qi] = t
+        qs[s - 1].append(qi)
 
     stk = []
-    pi, pv = n, float("INF")
-    bit = [0] * (n + 1)
-    ans = [0] * q
+    pi = n
     for i in range(n-1, -1, -1):
         v = l[i]
-        while pv <= v:
-            x = pi + 1
-            while x <= n:
-                bit[x] -= 1
-                x += x & -x
-            pi, pv = stk.pop()
-        stk.append((pi, pv))
-        pi, pv = i, v
-        x = i + 1
-        while x <= n:
-            bit[x] += 1
-            x += x & -x
-        for t, qi in qs[i]:
-            res = 0
-            s = i
-            while t > s:
-                res += bit[t]
-                t &= t-1
-            while s > t:
-                res -= bit[s]
-                s &= s-1
-            ans[qi] = res
+        while l[pi] <= v:
+            pi = -stk.pop()
+        stk.append(-pi)
+        pi = i
+        for qi in qs[i]:
+            ans[qi] = len(stk) - bisect_right(stk, -ans[qi]) + 1
     print("\n".join(map(str, ans)))
 main()
