@@ -1,3 +1,5 @@
+# TODO: 1. Parallel Binary Search, 2. kruskal's spanning tree
+
 def main():
     from sys import stdin
     from bisect import bisect_left
